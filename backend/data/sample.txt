@@ -1,0 +1,43 @@
+1. Simple CPU Architecture Fundamentals
+The Central Processing Unit (CPU) is the "brain" of the computer, executing instructions through a continuous cycle. 
+The Fetch-Decode-Execute Cycle: The CPU fetches instructions from memory, decodes what they mean, and executes them.
+Key Components:
+ALU (Arithmetic Logic Unit): Performs math (addition) and logic (AND/OR) calculations.
+CU (Control Unit): Manages the flow of data and instructions.
+Registers: Small, super-fast storage locations inside the CPU for immediate data.
+Cache: Fast memory that stores frequently used data to speed up processing.
+Von Neumann Architecture: A classic design where both data and instructions are stored in the same memory, sometimes creating a "bottleneck" where the CPU waits for data.
+RISC vs. CISC:
+RISC (Reduced Instruction Set Computer): Simple, fast instructions (e.g., ARM processors in phones).
+CISC (Complex Instruction Set Computer): Complex instructions, often used in PCs (e.g., Intel/AMD x86)
+
+
+
+2. AI and CPU Architecture
+While GPUs (Graphics Processing Units) are often used for AI, CPUs are evolving to handle AI tasks, especially on edge devices (phones, laptops). 
+
+ 
+Vector/Matrix Extension (SVE2/SME): Modern CPUs, like ARMv9, include specialized instructions that allow the CPU to process large sets of data (vectors or matrices) in one go, rather than one-by-one.
+AI Accelerators (NPUs): Many modern CPUs are now "System-on-Chip" (SoC) designs that include dedicated Neural Processing Units (NPUs) or AI engines for tasks like face recognition or image processing.
+General Purpose vs. Specific: CPUs are great at general tasks, but they are relatively slow at the massive parallel, matrix-multiplication math required for deep learning compared to GPUs or TPUs. 
+
+ 
+
+3. Key Differences: CPU vs. AI Hardware
+CPU: Designed for sequential processing, handling varied tasks, and low latency (fast reaction time).
+AI Accelerator (GPU/TPU/NPU): Designed for parallel processing, executing thousands of small, simultaneous calculations (matrix multiplication) for training or inference. 
+
+1. Large Language Models (LLM)
+Category: Artificial Intelligence / Natural Language Processing
+
+Description: A Large Language Model (LLM) is a sophisticated artificial intelligence system trained on massive datasets to understand, generate, and manipulate human language. Unlike traditional software that follows strict "if-then" logic, an LLM uses probabilistic neural networks to predict the next token in a sequence. These models excel at creative writing, code generation, summarization, and complex reasoning. However, because they rely on static training data, they may "hallucinate" or provide outdated information if not connected to external tools.
+
+2. Retrieval-Augmented Generation (RAG)
+Category: AI Architecture / Information Retrieval
+
+Description: Retrieval-Augmented Generation (RAG) is an architectural framework designed to optimize the output of an LLM by anchoring it to a specific, reliable knowledge base. Instead of relying solely on its internal training data, a RAG system first queries a vector database for relevant documents related to a user's prompt. It then feeds those documents to the LLM as context. This process significantly reduces hallucinations, provides "source-grounded" answers, and allows the AI to stay current with private or real-time data without the need for constant retraining.
+
+3. Machine Learning (ML)
+Category: Data Science / Algorithms
+
+Description: Machine Learning (ML) is a subset of AI focused on building systems that learn from data to identify patterns and make decisions with minimal human intervention. While LLMs are a specific type of ML, the broader field includes supervised learning (e.g., predicting house prices), unsupervised learning (e.g., customer segmentation), and reinforcement learning. ML models are typically evaluated on their accuracy, precision, and recall, and are used extensively in predictive analytics, fraud detection, and recommendation engines like those found on streaming platforms.

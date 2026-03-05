@@ -1,0 +1,9 @@
+# src/config.py
+
+MODEL_NAME = "phi"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+CHUNK_SIZE = 400
+CHUNK_OVERLAP = 100
+
+TOP_K = 4
