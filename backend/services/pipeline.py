@@ -6,6 +6,7 @@ from core.ingestion import ingest
 from core.retriever import HybridRetriever
 from core.reranker import CrossEncoderReranker
 from core.vector_store import create_vector_store
+from core.memory import ConversationMemory
 
 #==================
 #LOAD EVERYTHING 
@@ -34,8 +35,12 @@ llm = OllamaLLM(
       temperature=0.2
 )
 
+memory = ConversationMemory()
 
 def generate_query_expansion(query, n=3):
+
+     
+
       prompt = f"""
 Generate {n} short alternative search queries
 for the question below.
@@ -60,7 +65,7 @@ Question: {query}
                   continue
 
             if line[0].isdigit():
-                  line = line.split('.', 1)[-1].strip()
+                  line = line.split('.', 1)[1].strip()
                   line = line.split(')', 1)[-1].strip()
 
             expansions.append(line)
@@ -88,7 +93,7 @@ def run_pipeline(query: str):
       
       reranked_results = reranker.rerank(query, unique_docs)
 
-      SCORE_THRESHOLD = 2.0
+      SCORE_THRESHOLD = 0.2
 
       filtered = [
             (doc, score)
@@ -100,8 +105,14 @@ def run_pipeline(query: str):
 
       context = "\n\n".join(doc.page_content for doc,_ in top_documents)
 
+      history = memory.get_context()
+
       prompt = f"""
 You are a precise and factual AI Assistant.
+
+Conversation History:
+{history}
+
 Answer only using the context given below.
 
 Context:
@@ -116,10 +127,12 @@ Answer:
       
       answer = llm.invoke(prompt)
 
+      memory.add(query, answer)
+
       return {
             "answer": answer,
-            "expanded query": expanded_query,
-            "retrieved documents":[
+            "expanded_query": expanded_query,
+            "retrieved_documents":[
                   {
                         "content": doc.page_content,
                         "score": float(score)
