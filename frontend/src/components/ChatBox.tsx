@@ -10,6 +10,8 @@ export default function ChatBox(){
       const [loading, setLoading] = useState(false)
       const [sources, setSources] = useState<SourceDoc[]>([])
       const messageEndRef = useRef<HTMLDivElement | null>(null);
+      const [documents, setDocuments] = useState<string[]>([])
+      const [uploading, setUploading] = useState(false)
 
       useEffect(() => {
             messageEndRef.current?.scrollIntoView({behavior:"smooth"});
@@ -47,51 +49,157 @@ export default function ChatBox(){
             setLoading(false)
       }
 
+      const fetchdocuments = async() => {
+            const res = await fetch("http://127.0.0.1:8000/documents")
+            const data = await res.json()
+            setDocuments(data.documents)
+      }
+
+      useEffect(() => {
+            fetchdocuments()
+      }, [])
+
+      const uploadFile = async (file: File) => {
+            
+            if(documents.length > 2){
+                  alert("Maximum 2 documents  supported")
+                  return
+            }
+
+            const formData = new FormData()
+
+            formData.append("file", file)
+
+            setUploading(true)
+
+            await fetch("http://127.0.0.1:8000/upload",{
+                  method: "POST",
+                  body: formData
+            })
+
+            setUploading(false)
+
+            fetchdocuments()
+            
+      }
+
+
+      const removeDocument = async (name: string) => {
+            await fetch(`http://127.0.0.1:8000/document/${name}`,{
+                  method: "DELETE"
+            })
+
+            fetchdocuments()
+      }
+
       return(
             <div className="w-full max-w-5xl">
 
-            {/**Chat Container */}
-            <div className="bg-black border border-gray-700 rounded-xl p-5">
+                  <div className="mb-6">
 
-            {/*Chat Message */}
-      <div className="h-[400px] overflow-y-auto  mb-4">
-        {messages.map((msg, i) => (
-          <MessageBubble key={i} message={msg} />
-        ))}
+                        <h3 className="text-sm text-gray-300 mb-3">
+                              Uploaded Documents
+                        </h3>
 
-        {loading && (
-            <div className="opacity-70 italic text-gray-400 ">
-                  Assistant is Thinking...
+                        {/* Document List */}
+                        {documents.length > 0 && (
+                        <div className="space-y-2 mb-3">
+                              {documents.map((doc, index) => (
+                              <div
+                                    key={index}
+                                    className="flex items-center justify-between bg-gray-800 px-3 py-2 rounded-md"
+                              >
+                              <span className="text-sm text-gray-200 truncate">
+                                   📄 {doc}
+                              </span>
+
+                              <button
+                                    onClick={() => removeDocument(doc)}
+                                    className="text-red-400 hover:text-red-300 text-xs"
+                              >
+                                    Remove
+                              </button>
+                              </div>
+                              ))}
+                        </div>
+                        )}
+
+                        {/* Upload Input */}
+                        {documents.length < 2 && (
+                        <div>
+                              <input
+                              type="file"
+                              accept=".pdf,.txt"
+                              onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                          uploadFile(e.target.files[0])
+                                          e.target.value = ""
+                                    }
+                              }}
+                              className="text-sm text-gray-200"
+                              />
+                        </div>
+                        )}
+
+                        {/* Limit Warning */}
+                        {documents.length >= 2 && (
+                        <p className="text-xs text-gray-400">
+                              Maximum 2 documents uploaded
+                        </p>
+                        )}
+
+                        {/* Upload Status */}
+                        {uploading && (
+                        <p className="text-xs text-gray-400 mt-2">
+                              Uploading and indexing documents...
+                        </p>
+                        )}
+
+                  </div>
+
+                  {/**Chat Container */}
+                  <div className="bg-black border border-gray-700 rounded-xl p-5">
+
+                        {/*Chat Message */}
+                        <div className="h-[400px] overflow-y-auto  mb-4">
+                        {messages.map((msg, i) => (
+                        <MessageBubble key={i} message={msg} />
+                        ))}
+
+                        {loading && (
+                              <div className="opacity-70 italic text-gray-400 ">
+                                    Assistant is Thinking...
+                              </div>
+                        )}
+
+                        <div ref={messageEndRef}></div>
+                  </div>
+
+
+                  {/**Input Area */}
+                  <div className="flex gap-2 mb-4">
+                  <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask something..."
+                  onKeyDown = {(e) => {
+                        if(e.key === "Enter"){
+                              sendMessage();
+                        }
+                  }}
+                  className="flex-1 p-3 rounded-lg bg-gray-800 text-white outline-none border border-gray-600"
+                  />
+
+                  <button onClick={sendMessage}
+                        className="px-5 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 font-semibold">Send
+                  </button>
+
+                  </div>
+                        <SourceDocs docs={sources} />
+                  </div>
+
+            
+
             </div>
-      )}
-
-      <div ref={messageEndRef}></div>
-      </div>
-
-
-      {/**Input Area */}
-      <div className="flex gap-2 mb-4">
-      <input
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Ask something..."
-        onKeyDown = {(e) => {
-            if(e.key === "Enter"){
-                  sendMessage();
-            }
-        }}
-        className="flex-1 p-3 rounded-lg bg-gray-800 text-white outline-none border border-gray-600"
-      />
-
-      <button onClick={sendMessage}
-      className="px-5 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 font-semibold">Send</button>
-
-      </div>
-        <SourceDocs docs={sources} />
-      </div>
-
-      
-
-    </div>
       )
 }

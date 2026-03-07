@@ -8,11 +8,12 @@ class HybridRetriever:
             self.top_k = top_k
 
 
+            self.content_to_index = {}
+
             #CONTENT -> INDEX MAPPING 
-            self.content_to_index = {
-                  doc.page_content : i
-                  for i, doc in enumerate(chunks)
-            }
+            for i, doc in enumerate(chunks):
+                  key = doc.page_content.strip()
+                  self.content_to_index[key] = i
 
       # def normalize(self, scores):
       #       max_score = max(scores)
@@ -32,10 +33,16 @@ class HybridRetriever:
             CANDIDATE_POOL = 20
 
             #========SEMANTIC SEARCH========
-            semantic_results = self.vector_store.similarity_search_with_score(query, CANDIDATE_POOL)
+            semantic_results = self.vector_store.similarity_search(query, CANDIDATE_POOL)
 
-            semantic_docs = [doc for doc, _ in semantic_results]
-            semantic_indicies = [self.content_to_index[doc.page_content] for doc in semantic_docs]
+            semantic_docs = semantic_results
+            
+            semantic_indicies = []
+            for doc in semantic_docs:
+                  idx = self.content_to_index.get(doc.page_content.strip())
+
+                  if idx is not None:
+                        semantic_indicies.append(idx)
             
                   
             

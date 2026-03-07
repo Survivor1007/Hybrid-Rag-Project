@@ -7,19 +7,74 @@ from core.retriever import HybridRetriever
 from core.reranker import CrossEncoderReranker
 from core.vector_store import create_vector_store
 from core.memory import ConversationMemory
+import os
 
 #==================
 #LOAD EVERYTHING 
 #==================
 
-chunks = ingest("data/sample.txt")
+chunks = []
+bm25 = None
+vector_store = None
+uploaded_files = []
 
-bm25_corpus = [doc.page_content for doc in chunks]
-tokenized_bm25 = [doc.split() for doc in bm25_corpus]
-bm25 = BM25Okapi(tokenized_bm25)
+def add_document(path):
+      global chunks, bm25, vector_store, uploaded_files
 
-vector_store = create_vector_store(chunks)
+      if len(uploaded_files) >= 2:
+            raise Exception("Maximum of 2 files upload supported")
 
+
+      
+
+      uploaded_files.append(os.path.basename(path))
+
+
+      new_chunks = ingest(path=path)
+      chunks.extend(new_chunks)
+
+      bm25_corpus = [doc.page_content for doc in chunks]
+      tokenized_bm25 = [doc.split() for doc in bm25_corpus]
+
+      bm25  = BM25Okapi(tokenized_bm25)
+
+      vector_store = create_vector_store(chunks)
+
+
+      retriever.chunks = chunks
+      retriever.bm25 = bm25
+      retriever.vector_store = vector_store
+
+
+
+def remove_document(name):
+      global chunks, vector_store, bm25, uploaded_files
+
+      uploaded_files = [doc for doc in uploaded_files if name not in doc]
+
+      chunks = []
+
+      for file  in uploaded_files:
+            path = os.path.join("data",file)
+            chunks.extend(ingest(path))
+      
+      if not chunks:
+            bm25 = None
+            vector_store = None
+            return
+      
+      bm25_corpus = [doc.page_content for doc in chunks]
+      tokenized_bm25 = [doc.split() for doc in bm25_corpus]
+
+      bm25  = BM25Okapi(tokenized_bm25)
+      vector_store = create_vector_store(chunks)
+
+
+      retriever.chunks = chunks
+      retriever.bm25 = bm25
+      retriever.vector_store = vector_store
+
+      
 
 retriever = HybridRetriever(
       chunks=chunks, 
@@ -87,7 +142,7 @@ def run_pipeline(query: str):
       if not unique_docs:
             return {
                   "answer": "I don't know the answer based on the given instructions",
-                  "expanded query": expanded_query,
+                  "expanded_query": expanded_query,
                   "retrieved documents": []
             }
       
