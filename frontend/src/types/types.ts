@@ -10,6 +10,6 @@ export interface RAGResponse{
 }
 
 export interface Message{
-      role: "user" | "asistant",
+      role: "user" | "assistant",
       content:string
 }

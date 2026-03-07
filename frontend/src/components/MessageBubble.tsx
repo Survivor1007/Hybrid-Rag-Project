@@ -1,4 +1,5 @@
 import type { Message } from "../types/types";
+import ReactMarkdown from "react-markdown";
 
 interface Props{
       message: Message
@@ -9,29 +10,17 @@ export default function MessageBubble({message}: Props){
 
       return (
             <div
-      style={{
-        display: "flex",
-        justifyContent: isUser ? "flex-end" : "flex-start",
-        marginBottom: "12px",
-        width:"100%",
-        
-      }}
+     className={`flex mb-3 w-full  ${isUser? "justify-end" : "justify-start"}`}
     >
       <div
-        style={{
-          background: isUser ? "#2563eb" : "#f1f5f9",
-          color:isUser?"white":"#111827",
-          padding: "12px  14px",
-          borderRadius: "14px",
-          maxWidth: "65%",
-          fontSize:"14px",
-          lineHeight:"1.5",
-          boxShadow:"0 2px 6px rgba(0, 0, 0, 0.08)",
-          wordBreak:"break-word",
-          whiteSpace: "pre-wrap",
-        }}
+        className={`px-4 py-3 rounded-xl max-w-[65%] text-sm leading-relaxed shadow 
+          ${isUser? "bg-blue-600 text-white" : "bg-gray-200 text-gray-900" }`}
       >
-        {message.content}
+
+        <ReactMarkdown>
+          {message.content}
+        </ReactMarkdown>
+        
       </div>
     </div>
       )

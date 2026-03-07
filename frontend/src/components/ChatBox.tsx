@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { askQuestion } from "../services/api";
 import MessageBubble from "./MessageBubble";
 import SourceDocs from "./SourceDocs";
@@ -9,6 +9,11 @@ export default function ChatBox(){
       const [input, setInput] = useState("")
       const [loading, setLoading] = useState(false)
       const [sources, setSources] = useState<SourceDoc[]>([])
+      const messageEndRef = useRef<HTMLDivElement | null>(null);
+
+      useEffect(() => {
+            messageEndRef.current?.scrollIntoView({behavior:"smooth"});
+      }),[messages,loading]
 
       const sendMessage = async () => {
 
@@ -29,7 +34,7 @@ export default function ChatBox(){
                   const response = await askQuestion(input)
 
                   const aiMessage: Message = {
-                        role: "asistant",
+                        role: "assistant",
                         content: response.answer
                   }
 
@@ -43,28 +48,29 @@ export default function ChatBox(){
       }
 
       return(
-            <div style={{ width: "600px", margin: "auto" }}>
+            <div className="w-full max-w-5xl">
 
-      <div style={{ 
-            height: "400px",
-            overflowY: "auto",
-            background:"#000000",
-            padding:"20px",
-            borderRadius:"10px",
-            marginBottom:"20px",
+            {/**Chat Container */}
+            <div className="bg-black border border-gray-700 rounded-xl p-5">
 
-              }}>
+            {/*Chat Message */}
+      <div className="h-[400px] overflow-y-auto  mb-4">
         {messages.map((msg, i) => (
           <MessageBubble key={i} message={msg} />
         ))}
 
         {loading && (
-            <div style={{opacity:0.7, fontStyle:"italic"}}>
+            <div className="opacity-70 italic text-gray-400 ">
                   Assistant is Thinking...
             </div>
       )}
+
+      <div ref={messageEndRef}></div>
       </div>
 
+
+      {/**Input Area */}
+      <div className="flex gap-2 mb-4">
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
@@ -74,28 +80,17 @@ export default function ChatBox(){
                   sendMessage();
             }
         }}
-        style={{ flex: 1, padding: "12px",
-            borderRadius:"12px",
-            border:"none",
-            width:"490px",
-            outline: "none",
-            background:"2b2b2b",
-            color:"white",
-         }}
+        className="flex-1 p-3 rounded-lg bg-gray-800 text-white outline-none border border-gray-600"
       />
 
       <button onClick={sendMessage}
-      style={{
-            padding: "12px 20px",
-            borderRadius:"8px",
-            border:"none",
-            background:"#4facfe",
-            color:"white",
-            fontWeight:"bold",
-            cursor:"pointer",
-      }}>Send</button>
+      className="px-5 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 font-semibold">Send</button>
 
-      <SourceDocs docs={sources} />
+      </div>
+        <SourceDocs docs={sources} />
+      </div>
+
+      
 
     </div>
       )
