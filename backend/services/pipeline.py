@@ -8,6 +8,7 @@ from core.reranker import CrossEncoderReranker
 from core.vector_store import create_vector_store
 from core.memory import ConversationMemory
 import os
+import json
 
 #==================
 #LOAD EVERYTHING 
@@ -128,7 +129,7 @@ Question: {query}
       return expansions[:n]
 
 
-def run_pipeline(query: str):
+def run_pipeline_stream(query: str):
       expanded_query = generate_query_expansion(query, 3)
 
       all_docs = []
@@ -179,19 +180,40 @@ Question:
 Answer:
 
 """
-      
-      answer = llm.invoke(prompt)
+      sources = [
+            {
+                  "content" : doc.page_content,
+                  "score" : float(score)
+            }
+            for doc, score in top_documents
+      ]
+
+      answer = ""
+
+      #=============SEND LLM RESULT==========
+      for chunk in llm.stream(prompt):
+            token = chunk
+            answer += token
+            yield token
 
       memory.add(query, answer)
 
-      return {
-            "answer": answer,
-            "expanded_query": expanded_query,
-            "retrieved_documents":[
-                  {
-                        "content": doc.page_content,
-                        "score": float(score)
-                  }
-                  for doc, score in top_documents
-            ]
-      }
+      #============SEND MARKER=================   
+      yield("\n[[SOURCES]]\n")
+
+      yield json.dumps(sources)
+      # answer = llm.invoke(prompt)
+
+      # memory.add(query, answer)
+
+      # return {
+      #       "answer": answer,
+      #       "expanded_query": expanded_query,
+      #       "retrieved_documents":[
+      #             {
+      #                   "content": doc.page_content,
+      #                   "score": float(score)
+      #             }
+      #             for doc, score in top_documents
+      #       ]
+      # }

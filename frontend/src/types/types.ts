@@ -3,11 +3,11 @@ export interface SourceDoc{
       score: number
 }
 
-export interface RAGResponse{
-      answer: string,
-      expanded_query:string[],
-      retrieved_documents: SourceDoc[]
-}
+// export interface RAGResponse{
+//       answer: string,
+//       expanded_query:string[],
+//       retrieved_documents: SourceDoc[]
+// }
 
 export interface Message{
       role: "user" | "assistant",

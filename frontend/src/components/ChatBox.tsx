@@ -35,13 +35,55 @@ export default function ChatBox(){
 
                   const response = await askQuestion(input)
 
-                  const aiMessage: Message = {
-                        role: "assistant",
-                        content: response.answer
-                  }
+                  const reader = response.body?.getReader()
+                  const decoder = new TextDecoder()
 
-                  setMessage(prev => [...prev, aiMessage])
-                  setSources(response.retrieved_documents)
+                  let done = false
+                  let streamedText = ""
+                  let sourcesText = ""
+                  let readingSources = false
+
+                  //empty assistant message
+                  setMessage(prev => [...prev, {role:"assistant",content:""}])
+
+                  while(!done)
+                  {
+                        const {value,done: doneReading} = await reader!.read()
+                        done = doneReading
+
+                        const chunk = decoder.decode(value)
+
+                        if(chunk.includes("[[SOURCES]]")){
+                              readingSources = true
+                              continue
+                        }
+
+                        if(readingSources){
+                              sourcesText += chunk
+                        }
+                        else{
+
+                              streamedText += chunk
+
+
+                              setMessage(prev => {
+                                    const updated  = [...prev]
+                                    updated[updated.length - 1] = {
+                                          role : 'assistant',
+                                          content: streamedText
+                                    }
+                                    return updated
+                              })
+                        }
+                  }
+                  if(sourcesText){
+                        const parsedSources = JSON.parse(sourcesText)
+                        setSources(parsedSources)
+                  }
+                 
+                  
+
+                  
             }catch(err){
                   console.error(err)
             }     
@@ -83,7 +125,7 @@ export default function ChatBox(){
             
       }
 
-
+      
       const removeDocument = async (name: string) => {
             await fetch(`http://127.0.0.1:8000/document/${name}`,{
                   method: "DELETE"

@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi import UploadFile, File
+from fastapi.responses import StreamingResponse
 import shutil
 
 from pydantic import BaseModel
-from services.pipeline import run_pipeline
+from services.pipeline import run_pipeline_stream
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -39,8 +40,8 @@ async def upload_document(file: UploadFile = File(...)):
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-      result = run_pipeline(request.query)
-      return result
+      generator = run_pipeline_stream(request.query)
+      return StreamingResponse(generator, media_type = "text/plain")
 
 
 @app.get("/documents")
