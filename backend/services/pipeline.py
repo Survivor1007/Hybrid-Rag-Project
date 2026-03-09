@@ -9,6 +9,7 @@ from core.vector_store import create_vector_store
 from core.memory import ConversationMemory
 import os
 import json
+import time
 
 #==================
 #LOAD EVERYTHING 
@@ -88,7 +89,7 @@ reranker = CrossEncoderReranker()
 
 llm = OllamaLLM(
       model=MODEL_NAME,
-      temperature=0.2
+      temperature=0
 )
 
 memory = ConversationMemory()
@@ -109,6 +110,7 @@ Rules:
 
 Question: {query}
 """
+      
 
       response = llm.invoke(prompt)
 
@@ -134,20 +136,38 @@ def run_pipeline_stream(query: str):
 
       all_docs = []
 
+
+      retriever_start = time.time()
+
       for q in [query] + expanded_query:
             doc = retriever.retrieve(query=q)
             all_docs.extend(doc)
+
+      retriever_time = time.time() - retriever_start
       
       unique_docs = list({doc.page_content: doc for doc in all_docs}.values())
 
       if not unique_docs:
-            return {
-                  "answer": "I don't know the answer based on the given instructions",
-                  "expanded_query": expanded_query,
-                  "retrieved documents": []
-            }
+            yield "I cannot find the answer in the provided documents."
+            return 
       
+      rerank_start = time.time()
+
       reranked_results = reranker.rerank(query, unique_docs)
+
+      rerank_time = time.time() - rerank_start
+
+
+      if not reranked_results:
+            yield "I cannot find the answer in the provided documents."
+            return
+      
+      top_score = reranked_results[0][1]
+      print(f"Top ranked result:{top_score}")
+
+      if  reranked_results[0][1] < 0.25:
+            yield "I cannot find the answer in the provided documents."
+            return
 
       SCORE_THRESHOLD = 0.2
 
@@ -157,29 +177,52 @@ def run_pipeline_stream(query: str):
             if score > SCORE_THRESHOLD
       ]
 
+      if  not filtered:
+            yield "I cannot find the answer in the provided documents."
+            return
+
+     
+
+      context =""
       top_documents = filtered[:3]
 
-      context = "\n\n".join(doc.page_content for doc,_ in top_documents)
+      for i, doc in enumerate(top_documents):
+            context += f"[{i+1}] {doc['content']}\n\n"
 
       history = memory.get_context()
+      history = history[-4:]
 
       prompt = f"""
-You are a precise and factual AI Assistant.
+You are a retrieval-augmented AI assistant.
 
-Conversation History:
+IMPORTANT RULES:
+- Answer ONLY using the provided context.
+- If the answer is not present in the context, reply:
+  "I cannot find the answer in the provided documents."
+- Do NOT use outside knowledge.
+
+---------------------
+Conversation History
+---------------------
 {history}
 
-Answer only using the context given below.
-
-Context:
+---------------------
+Context Documents
+---------------------
 {context}
 
-Question:
+---------------------
+User Question
+---------------------
 {query}
 
-Answer:
-
+---------------------
+Answer
+---------------------
 """
+      
+      print(prompt)
+
       sources = [
             {
                   "content" : doc.page_content,
@@ -190,18 +233,51 @@ Answer:
 
       answer = ""
 
+
+      generation_start = time.time()
+
       #=============SEND LLM RESULT==========
       for chunk in llm.stream(prompt):
             token = chunk
             answer += token
             yield token
 
+      generation_time = time.time() - generation_start
+
       memory.add(query, answer)
+
+
+      debug_data = {
+            "timing":{
+                  "retrieval_time":round(retriever_time,3),
+                  "rerank_time":  round(rerank_time,3),
+                  "generation_time": round(generation_time,3)
+            },
+            "expanded_queries" : expanded_query,
+            "retrieved_docs" : [
+                  doc.page_content[:200]
+                  for doc in unique_docs[:5]
+            ],
+            "reranked_docs":[
+                  {
+                        "content" :doc.page_content[:200],
+                        "score": float(score)
+                  }
+                  for doc, score in filtered[:5]
+            ]
+      }
 
       #============SEND MARKER=================   
       yield("\n[[SOURCES]]\n")
-
       yield json.dumps(sources)
+
+
+      yield("\n[[DEBUG]]\n\n")
+      yield json.dumps(debug_data)
+
+
+
+
       # answer = llm.invoke(prompt)
 
       # memory.add(query, answer)
