@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { askQuestion } from "../services/api";
 import MessageBubble from "./MessageBubble";
 import SourceDocs from "./SourceDocs";
-import  type { Message,SourceDoc } from "../types/types";
+import { type DebugData, type Message,type SourceDoc } from "../types/types";
+import DebugPanel from "./DebugPanel";
 
 export default function ChatBox(){
       const [messages, setMessage] = useState<Message[]>([])
@@ -12,6 +13,7 @@ export default function ChatBox(){
       const messageEndRef = useRef<HTMLDivElement | null>(null);
       const [documents, setDocuments] = useState<string[]>([])
       const [uploading, setUploading] = useState(false)
+      const [debugData, setDebugData] = useState<DebugData | null>(null);
 
       useEffect(() => {
             messageEndRef.current?.scrollIntoView({behavior:"smooth"});
@@ -40,8 +42,14 @@ export default function ChatBox(){
 
                   let done = false
                   let streamedText = ""
+
                   let sourcesText = ""
                   let readingSources = false
+
+                  let debugText = ""
+                  let readingDebug = false
+
+
 
                   //empty assistant message
                   setMessage(prev => [...prev, {role:"assistant",content:""}])
@@ -55,11 +63,21 @@ export default function ChatBox(){
 
                         if(chunk.includes("[[SOURCES]]")){
                               readingSources = true
+                              readingDebug = false
                               continue
                         }
+                        if(chunk.includes("[[DEBUG]]")){
+                              readingSources = false
+                              readingDebug = true
+                              continue
+                        }
+                        
 
                         if(readingSources){
                               sourcesText += chunk
+                        }
+                        else if(readingDebug){
+                              debugText += chunk
                         }
                         else{
 
@@ -77,8 +95,11 @@ export default function ChatBox(){
                         }
                   }
                   if(sourcesText){
-                        const parsedSources = JSON.parse(sourcesText)
-                        setSources(parsedSources)
+                        setSources(JSON.parse(sourcesText))
+                  }
+
+                  if(debugText){
+                        setDebugData(JSON.parse(debugText))
                   }
                  
                   
@@ -238,6 +259,8 @@ export default function ChatBox(){
 
                   </div>
                         <SourceDocs docs={sources} />
+
+                        <DebugPanel data={debugData} />
                   </div>
 
             
