@@ -30,6 +30,8 @@ Expanded Queries:
 1. What is the current value of the program counter?
 2. How does the program counter affect program execution?
 3. What happens when the program counter reaches the end of a program?
+
+4. 
 Cross-Encoder Reranking
 
 Retrieved chunks are reranked using a cross-encoder model to improve semantic relevance before passing them to the LLM.
@@ -89,7 +91,7 @@ This makes the system transparent and easier to debug.
 RAG Pipeline Architecture
 
 GitHub supports Mermaid diagrams if written correctly:
-
+```
 flowchart LR
 
 A[User Query]
@@ -119,7 +121,7 @@ G --> H
 H --> I
 I --> J
 J --> K
-
+```
 After pushing to GitHub this will render as a diagram.
 
 Tech Stack
@@ -150,7 +152,7 @@ TailwindCSS
 Project Structure
 
 
-
+```
 hybrid-rag-assistant
 │
 ├── backend
@@ -183,6 +185,8 @@ hybrid-rag-assistant
 │   └── package.json
 │
 └── README.md
+
+```
 Setup Instructions
 Prerequisites
 
@@ -191,72 +195,48 @@ Python 3.9+
 Node.js 18+
 
 Ollama installed
-
 Pull a model:
+ollama pull mistral
 
-ollama pull llama3
 Backend Setup
 cd backend
-
 python -m venv venv
-source venv/bin/activate
+venv/scripts/activate
 
-Install dependencies
-
+Install dependencies:-
 pip install -r requirements.txt
 
-Run the server
+Run the server:-
+uvicorn app:app --reload
 
-uvicorn main:app --reload
-
-Backend runs at
-
+Backend runs at:-
 http://localhost:8000
+
 Frontend Setup
 cd frontend
-
 npm install
 npm run dev
 
-Frontend runs at
-
+Frontend runs at:-
 http://localhost:5173
+
 Example Workflow
-
 Upload a document
-
 Ask a question
-
 Query expansion generates alternative queries
-
 Hybrid retrieval finds relevant chunks
-
 Cross-encoder reranks the results
-
 Context is constructed
-
 LLM generates an answer
-
 The response streams to the UI
-
 Debug panel displays pipeline information
 
+
 Future Improvements
-
 Possible enhancements:
-
-Persistent vector database (FAISS / Chroma / Qdrant)
-
-Conversation memory
-
 Better document chunking strategies
-
-Metadata filtering
-
+Metadata filtering 
 RAG evaluation metrics
-
 Docker deployment
-
 Authentication
-
-Multi-modal document support (PDFs, images)
+Multi-modal document support (images)
