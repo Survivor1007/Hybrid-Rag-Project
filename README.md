@@ -151,40 +151,94 @@ Project Structure
 
 
 ```
-hybrid-rag-assistant
+hybrid-rag-project
 │
 ├── backend
-│   ├── main.py
 │   │
-│   ├── rag
-│   │   ├── pipeline.py
-│   │   ├── retriever.py
+│   ├── app.py
+│   ├── requirements.txt
+│   |
+│   │
+│   ├── core
+│   │   ├── config.py
+│   │   ├── evaluation.py
+│   │   ├── ingestion.py
+│   │   ├── memory.py
 │   │   ├── reranker.py
-│   │   └── query_expansion.py
+│   │   ├── retriever.py
+│   │   └── vector_store.py
 │   │
 │   ├── services
-│   │   ├── embeddings.py
-│   │   └── document_store.py
+│   │   └── pipeline.py
 │   │
-│   └── requirements.txt
+│   └── data
 │
 ├── frontend
+│   │
+│   ├── public
+│   │
 │   ├── src
+│   │   │
+│   │   ├── assets
+│   │   │
 │   │   ├── components
-│   │   │   ├── ChatUI.tsx
+│   │   │   ├── ChatBox.tsx
 │   │   │   ├── DebugPanel.tsx
-│   │   │   └── DocumentManager.tsx
+│   │   │   ├── MessageBubble.tsx
+│   │   │   └── SourceDocs.tsx
 │   │   │
 │   │   ├── services
 │   │   │   └── api.ts
 │   │   │
-│   │   └── App.tsx
+│   │   ├── types
+│   │   │   └── types.ts
+│   │   │
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── App.css
+│   │   └── index.css
 │   │
-│   └── package.json
+│   ├── index.html
+│   ├── package.json
+│   ├── package-lock.json
+│   │
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.ts
+│   │
+│   ├── tsconfig.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.node.json
+│   │
+│   ├── eslint.config.js
+│   └── .gitignore
 │
-└── README.md
-
+├── README.md
+└── .gitignore
 ```
+
+
+Backend
+
+The backend implements the Hybrid RAG pipeline using FastAPI.
+
+Key modules:
+ingestion.py → document loading and chunking
+retriever.py → hybrid retrieval (BM25 + vector search)
+reranker.py → cross-encoder reranking
+vector_store.py → dense embedding storage
+pipeline.py → orchestration of the RAG workflow
+memory.py → conversational memory support
+
+Frontend
+The frontend is built using React + TypeScript + TailwindCSS (Vite).
+
+Key components:
+ChatBox.tsx → main chat interface
+MessageBubble.tsx → renders chat messages
+SourceDocs.tsx → shows retrieved document sources
+DebugPanel.tsx → displays RAG pipeline internals
+
 Setup Instructions
 Prerequisites
 
