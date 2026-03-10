@@ -149,7 +149,7 @@ TailwindCSS
 
 Project Structure
 
-This must be inside a code block to stay vertical.
+
 
 hybrid-rag-assistant
 │
