@@ -1,190 +1,288 @@
-Hybrid RAG System
-A Retrieval-Augmented Generation (RAG) system built with FastAPI, LangChain, Ollama, and React that demonstrates modern document-based question answering.
-This project implements a production-style RAG pipeline with hybrid retrieval, reranking, streaming responses, and debugging observability.
-Features
-Retrieval System
+Hybrid RAG Assistant
+
+A Hybrid Retrieval-Augmented Generation (RAG) document question-answering system that allows users to upload documents and ask questions about them.
+
+The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a local LLM via Ollama, while providing full transparency of the retrieval pipeline through a debug panel.
+
+This project demonstrates a production-style RAG pipeline with query expansion, reranking, hallucination control, and streaming responses in a full-stack AI application.
+
+
+
+The interface allows users to:
+
+Upload documents
+
+Ask questions about them
+
+View generated answers
+
+See the retrieved sources used by the model
+
+Inspect the internal RAG pipeline through the debug panel
+
+Key Features
 Hybrid Retrieval (BM25 + Dense Vector Search)
-Query Expansion using LLM
-Document Deduplication
+
+The system combines:
+
+BM25 lexical search
+
+Dense vector similarity search
+
+This hybrid approach improves both precision and recall, ensuring relevant document chunks are retrieved even when wording differs.
+
+Query Expansion
+
+Before retrieval, the system generates multiple expanded versions of the user query using an LLM.
+
+Example:
+
+User Query:
+Explain program counter
+
+Expanded Queries:
+1. What is the current value of the program counter?
+2. How does the program counter affect program execution?
+3. What happens when the program counter reaches the end of a program?
+
+This improves retrieval coverage.
+
 Cross-Encoder Reranking
-Generation
-Streaming LLM responses
-Context-grounded answering
-Hallucination prevention using score threshold
-Conversation memory
-Frontend
-Chat interface
-Streaming responses
-Source citations
-Document scores
-Debug panel
-Observability
-Query expansion visualization
-Retrieved documents preview
-Reranked documents with scores
-Retrieval / rerank / generation timing
-Architecture
-Mermaid
-Copy code
-flowchart TD
+
+Retrieved document chunks are reranked using a cross-encoder model that evaluates the query and document together.
+
+This improves semantic relevance before passing context to the LLM.
+
+Hallucination Guard
+
+Low-confidence results are filtered using a score threshold.
+
+If relevant context is insufficient, the system avoids generating unsupported answers.
+
+Streaming Responses
+
+LLM responses are streamed token-by-token to the frontend, providing a real-time chat experience.
+
+Document Management
+
+Users can:
+
+Upload documents
+
+Remove documents
+
+Ask questions across the uploaded corpus
+
+Source Citations
+
+Answers include retrieved document chunks and relevance scores, helping users verify the origin of information.
+
+Example:
+
+Retrieved Sources
+Registers: High-speed internal storage for instructions...
+Score: 1.799
+RAG Debug Panel
+
+One of the key features of the system is the debug panel, which exposes the internal workings of the RAG pipeline.
+
+Displayed information includes:
+
+Retrieval Statistics
+
+Retrieved: 5
+After rerank: 1
+
+Performance Metrics
+
+Retrieval: 61 ms
+Rerank: 93 ms
+Generation: 23 ms
+Top Score: 1.799
+
+Expanded Queries
+
+1. What is the current value of the program counter?
+2. How does the program counter affect the execution of a program?
+3. What happens when the program counter reaches the end of the program?
+
+Retrieved Documents
+
+Shows document chunks retrieved from the corpus.
+
+Reranked Documents
+
+Displays the final document chunks used as context.
+
+This panel makes the system highly transparent and useful for debugging RAG pipelines.
+
+RAG Pipeline Architecture
+
+flowchart LR
 
 A[User Query] --> B[Query Expansion]
+
 B --> C[Hybrid Retrieval]
 
-C --> D1[BM25 Retrieval]
-C --> D2[Vector Retrieval]
+C --> C1[BM25 Search]
+C --> C2[Dense Vector Search]
 
-D1 --> E[Merge Results]
-D2 --> E
+C1 --> D[Merge Results]
+C2 --> D
 
-E --> F[Deduplicate Documents]
+D --> E[Deduplication]
 
-F --> G[Cross Encoder Reranking]
+E --> F[Cross Encoder Reranker]
 
-G --> H{Score Threshold}
+F --> G[Score Threshold Filter]
 
-H -->|Low Score| I[Refuse Answer]
+G --> H[Context Construction]
 
-H -->|Relevant| J[Context Construction]
+H --> I[LLM Generation - Ollama]
 
-J --> K[LLM Generation]
+I --> J[Streaming Response]
 
-K --> L[Streaming Response]
+J --> K[React Chat UI]
 
-L --> M[Frontend Chat UI]
+subgraph Debug Panel
+B
+C
+F
+end
 
-G --> N[Debug Panel]
 
-N --> O[Retrieval Stats]
-N --> P[Rerank Scores]
-N --> Q[Expanded Queries]
-N --> R[Timing Metrics]
+
 Tech Stack
 Backend
+
+Python
+
 FastAPI
+
 LangChain
-Ollama (Local LLM)
-BM25 (rank-bm25)
-Cross Encoder Reranker
+
+Ollama (local LLM)
+
+rank-bm25
+
+Dense vector embeddings
+
+Cross-encoder reranker
+
 Frontend
+
 React
+
 TypeScript
+
 TailwindCSS
-Vector Storage
-Local vector store for embeddings
+
 Project Structure
-Copy code
+hybrid-rag-assistant
+│
+├── backend
+│   ├── main.py
+│   ├── rag
+│   │   ├── pipeline.py
+│   │   ├── retriever.py
+│   │   ├── reranker.py
+│   │   └── query_expansion.py
+│   │
+│   ├── services
+│   │   ├── embeddings.py
+│   │   └── document_store.py
+│   │
+│   └── requirements.txt
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   │   ├── ChatUI.tsx
+│   │   │   ├── DebugPanel.tsx
+│   │   │   └── DocumentManager.tsx
+│   │   │
+│   │   ├── services
+│   │   │   └── api.ts
+│   │   │
+│   │   └── App.tsx
+│   │
+│   └── package.json
+│
+└── README.md
+Setup Instructions
+Prerequisites
 
-backend/
- ├── core/
- │   ├── config.py
- │   ├── ingestion.py
- │   ├── retriever.py
- │   ├── reranker.py
- │   ├── vector_store.py
- │   └── memory.py
- │
- ├── services/
- │   └── pipeline.py
- │
- ├── data/
- │
- └── app.py
+Python 3.9+
 
+Node.js 18+
 
-frontend/
- ├── components/
- │   ├── ChatBox.tsx
- │   ├── SourceDocs.tsx
- │   └── DebugPanel.tsx
- │
- ├── services/
- │   └── api.ts
- │
- └── types/
+Ollama installed
 
+Install a local model:
 
- 
-RAG Pipeline
-User submits a query
-Query expansion generates alternative search queries
-Hybrid retrieval retrieves candidate documents
-BM25 lexical search
-Dense vector search
-Retrieved documents are merged and deduplicated
-Cross-encoder reranking scores document relevance
-Score threshold filters irrelevant results
-Relevant documents form the context
-LLM generates an answer using the context
-Response is streamed to the frontend
-
-
-
-
-Debug Panel
-The debug panel provides transparency into the RAG pipeline.
-It displays:
-Query expansions
-Retrieved documents
-Reranked documents with scores
-Retrieval timing
-Rerank timing
-Generation timing
-This helps analyze the performance and behavior of the system.
-
-
-Installation
-Backend
-Bash
-Copy code
+ollama pull llama3
+Backend Setup
 cd backend
 
 python -m venv venv
 source venv/bin/activate
 
+Install dependencies:
+
 pip install -r requirements.txt
-Start the server
-Bash
-Copy code
-uvicorn app:app --reload
-Frontend
-Bash
-Copy code
+
+Run the server:
+
+uvicorn main:app --reload
+
+Backend runs at:
+
+http://localhost:8000
+Frontend Setup
 cd frontend
 
 npm install
 npm run dev
-Usage
-Upload documents
-Ask questions related to the documents
-View:
-streaming answers
-source citations
-debug pipeline data
-Example
-User Question
-Copy code
 
-What is FastAPI?
-System Response
-Copy code
+Frontend runs at:
 
-FastAPI is a modern Python web framework used for building APIs efficiently.
-Sources
-Copy code
+http://localhost:5173
+Example Workflow
 
-Source 1 (Score: 0.87)
-FastAPI is a modern Python framework designed for building APIs...
-Key Concepts Demonstrated
-Retrieval-Augmented Generation
-Hybrid Search
-Cross Encoder Reranking
-LLM Streaming
-Hallucination Mitigation
-Observability in AI pipelines
+Upload a document
+
+Ask a question
+
+System expands the query
+
+Hybrid retrieval finds relevant chunks
+
+Cross-encoder reranks the results
+
+Context is passed to the LLM
+
+The answer is generated and streamed
+
+Retrieved sources and debug information are displayed
+
 Future Improvements
-Potential improvements:
-Semantic chunk highlighting
-Document metadata filtering
-Evaluation metrics for retrieval quality
-Support for larger document collections
+
+
+
+Potential enhancements:
+
+Persistent vector database (FAISS / Chroma / Qdrant)
+
+Multi-document conversation memory
+
+Improved chunking strategies
+
+Metadata filtering
+
+RAG evaluation metrics
+
+Docker deployment
+
+Authentication system
+
+Multi-modal document support (PDFs, images)
