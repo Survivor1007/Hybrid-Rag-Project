@@ -187,7 +187,7 @@ def run_pipeline_stream(query: str):
       top_documents = filtered[:3]
 
       for i, doc in enumerate(top_documents):
-            context += f"[{i+1}] {doc['content']}\n\n"
+            context += f"[{i+1}] {doc[0]}\n\n"
 
       history = memory.get_context()
       history = history[-4:]

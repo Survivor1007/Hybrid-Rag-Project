@@ -10,13 +10,16 @@ export default function ChatBox(){
       const [input, setInput] = useState("")
       const [loading, setLoading] = useState(false)
       const [sources, setSources] = useState<SourceDoc[]>([])
-      const messageEndRef = useRef<HTMLDivElement | null>(null);
+      const chatContainerRef = useRef<HTMLDivElement | null>(null);
       const [documents, setDocuments] = useState<string[]>([])
       const [uploading, setUploading] = useState(false)
       const [debugData, setDebugData] = useState<DebugData | null>(null);
 
       useEffect(() => {
-            messageEndRef.current?.scrollIntoView({behavior:"smooth"});
+           if(chatContainerRef.current){
+            chatContainerRef.current.scrollTop =
+            chatContainerRef.current.scrollHeight;
+           }
       }),[messages,loading]
 
       const sendMessage = async () => {
@@ -221,7 +224,7 @@ export default function ChatBox(){
                   </div>
 
                   {/**Chat Container */}
-                  <div className="bg-black border border-gray-700 rounded-xl p-5">
+                  <div  ref = {chatContainerRef} className="bg-black border border-gray-700 rounded-xl p-5">
 
                         {/*Chat Message */}
                         <div className="h-[400px] overflow-y-auto  mb-4">
@@ -235,7 +238,7 @@ export default function ChatBox(){
                               </div>
                         )}
 
-                        <div ref={messageEndRef}></div>
+                       
                   </div>
 
 

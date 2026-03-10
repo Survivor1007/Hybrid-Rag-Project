@@ -4,3 +4,19 @@ Dancing is an ancient human behavior characterized by rhythmic body movement, ty
 
 Resistance and Weightlessness in Water
 Swimming offers a distinct sensory experience defined by hydrodynamic resistance and buoyancy. Unlike dancing, which is performed in a 1G gravity environment, swimming allows the human body to achieve a state of near-weightlessness. The four primary strokes—freestyle, backstroke, breaststroke, and butterfly—each require synchronized limb movement and specific breathing patterns. Elite swimmers often describe a "feel for the water," a tactile sensitivity that allows them to minimize drag and maximize propulsion.
+
+
+1. Fundamental CPU Components & Data Flow
+Arithmetic Logic Unit (ALU): Executes arithmetic (add, sub) and logical (AND, OR, NOT) operations.
+Control Unit (CU): Acts as the "nerve center," generating timing signals and coordinating data flow between registers, ALU, and memory.
+Registers: High-speed, internal storage for active data/instructions.
+Program Counter (PC): Holds the address of the next instruction.
+Instruction Register (IR): Holds the current instruction being decoded.
+Memory Address Register (MAR): Stores the address for memory access.
+Memory Data Register (MDR/MBR): Stores data transferred to/from memory. 
+
+2. Instruction Cycle (Fetch-Decode-Execute) 
+Fetch: CPU uses the PC to fetch the next instruction from main memory into the IR.
+Decode: The CU interprets the bit pattern in the IR to determine the operation.
+Execute: The ALU manipulates data or modifies registers based on the decoding.
+Update: The PC is updated to point to the next instruction. 

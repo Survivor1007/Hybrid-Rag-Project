@@ -7,4 +7,20 @@ In Dance: Flow is often achieved through the synchronization of movement with au
 
 In Swimming: Flow is linked to the repetitive, meditative nature of lap swimming and the sensory deprivation provided by being underwater.	
 
-Technical Note on Cross-TrainingAthletes often use swimming as a recovery tool for dance-related injuries. Because water is roughly 800 times denser than air, it provides a full-body workout without the joint stress associated with jumps and "turn-out" in dance. Conversely, the core strength and disciplined posture of a dancer often translate into a more streamlined "torpedo" shape in the pool, reducing the coefficient of drag ($C_d$) during the glide phase of a stroke."To dance is to be out of yourself. To swim is to be inside your body in a different world."
+Technical Note on Cross-Training Athletes often use swimming as a recovery tool for dance-related injuries. Because water is roughly 800 times denser than air, it provides a full-body workout without the joint stress associated with jumps and "turn-out" in dance. Conversely, the core strength and disciplined posture of a dancer often translate into a more streamlined "torpedo" shape in the pool, reducing the coefficient of drag ($C_d$) during the glide phase of a stroke."To dance is to be out of yourself. To swim is to be inside your body in a different world."
+
+3. Memory & Bus Structure (Von Neumann Architecture)
+Shared Memory: Both data and instructions are stored in the same physical memory.
+Von Neumann Bottleneck: Because instructions and data share the same bus, only one operation can occur at a time, limiting speed.
+Buses: Address bus (specifies location), Data bus (transfers data), and Control bus (signals timing). 
+
+4. Instruction Set Architecture (ISA) & Types
+RISC (Reduced Instruction Set Computer): Simple, fast instructions; common in ARM.
+CISC (Complex Instruction Set Computer): Complex, multi-cycle instructions; common in x86.
+Key Operations to Test: LOAD, STORE, ADD, SUB, JUMP (branching), AND, OR. 
+
+
+5. Performance & Design Techniques
+Pipelining: Overlapping the fetch-decode-execute steps for multiple instructions to improve throughput.
+Clock Speed: Measured in GHz, indicating instructions processed per second. 
+
