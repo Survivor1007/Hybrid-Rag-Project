@@ -2,38 +2,24 @@ Hybrid RAG Assistant
 
 A Hybrid Retrieval-Augmented Generation (RAG) document question-answering system that allows users to upload documents and ask questions about them.
 
-The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a local LLM via Ollama, while providing full transparency of the retrieval pipeline through a debug panel.
+The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a local LLM via Ollama, while providing full visibility into the retrieval pipeline through a RAG debug panel.
 
-This project demonstrates a production-style RAG pipeline with query expansion, reranking, hallucination control, and streaming responses in a full-stack AI application.
+This project demonstrates a full-stack AI system combining modern LLM orchestration with a real-time frontend interface.
 
+Features
+Hybrid Retrieval
 
-
-The interface allows users to:
-
-Upload documents
-
-Ask questions about them
-
-View generated answers
-
-See the retrieved sources used by the model
-
-Inspect the internal RAG pipeline through the debug panel
-
-Key Features
-Hybrid Retrieval (BM25 + Dense Vector Search)
-
-The system combines:
+Combines:
 
 BM25 lexical search
 
 Dense vector similarity search
 
-This hybrid approach improves both precision and recall, ensuring relevant document chunks are retrieved even when wording differs.
+This improves retrieval accuracy when documents do not match the query wording exactly.
 
 Query Expansion
 
-Before retrieval, the system generates multiple expanded versions of the user query using an LLM.
+Before retrieval, the system generates multiple expanded queries using the LLM.
 
 Example:
 
@@ -44,24 +30,17 @@ Expanded Queries:
 1. What is the current value of the program counter?
 2. How does the program counter affect program execution?
 3. What happens when the program counter reaches the end of a program?
-
-This improves retrieval coverage.
-
 Cross-Encoder Reranking
 
-Retrieved document chunks are reranked using a cross-encoder model that evaluates the query and document together.
-
-This improves semantic relevance before passing context to the LLM.
+Retrieved chunks are reranked using a cross-encoder model to improve semantic relevance before passing them to the LLM.
 
 Hallucination Guard
 
-Low-confidence results are filtered using a score threshold.
-
-If relevant context is insufficient, the system avoids generating unsupported answers.
+Low confidence retrieval results are filtered using a score threshold to reduce hallucinated responses.
 
 Streaming Responses
 
-LLM responses are streamed token-by-token to the frontend, providing a real-time chat experience.
+LLM responses are streamed token-by-token to the frontend for a real-time chat experience.
 
 Document Management
 
@@ -75,20 +54,13 @@ Ask questions across the uploaded corpus
 
 Source Citations
 
-Answers include retrieved document chunks and relevance scores, helping users verify the origin of information.
+Each answer displays the retrieved document chunks and relevance scores used for generation.
 
-Example:
-
-Retrieved Sources
-Registers: High-speed internal storage for instructions...
-Score: 1.799
 RAG Debug Panel
 
-One of the key features of the system is the debug panel, which exposes the internal workings of the RAG pipeline.
+The debug panel exposes internal pipeline information including:
 
-Displayed information includes:
-
-Retrieval Statistics
+Retrieval Stats
 
 Retrieved: 5
 After rerank: 1
@@ -103,54 +75,52 @@ Top Score: 1.799
 Expanded Queries
 
 1. What is the current value of the program counter?
-2. How does the program counter affect the execution of a program?
+2. How does the program counter affect program execution?
 3. What happens when the program counter reaches the end of the program?
 
-Retrieved Documents
+It also displays:
 
-Shows document chunks retrieved from the corpus.
+Retrieved documents
 
-Reranked Documents
+Reranked documents
 
-Displays the final document chunks used as context.
-
-This panel makes the system highly transparent and useful for debugging RAG pipelines.
+This makes the system transparent and easier to debug.
 
 RAG Pipeline Architecture
 
+GitHub supports Mermaid diagrams if written correctly:
+
 flowchart LR
 
-A[User Query] --> B[Query Expansion]
+A[User Query]
+B[Query Expansion]
+C[Hybrid Retrieval]
+C1[BM25 Search]
+C2[Dense Vector Search]
+D[Merge Results]
+E[Deduplication]
+F[Cross Encoder Reranker]
+G[Score Threshold Filter]
+H[Context Construction]
+I[LLM Generation (Ollama)]
+J[Streaming Response]
+K[React Chat UI]
 
-B --> C[Hybrid Retrieval]
-
-C --> C1[BM25 Search]
-C --> C2[Dense Vector Search]
-
-C1 --> D[Merge Results]
+A --> B
+B --> C
+C --> C1
+C --> C2
+C1 --> D
 C2 --> D
+D --> E
+E --> F
+F --> G
+G --> H
+H --> I
+I --> J
+J --> K
 
-D --> E[Deduplication]
-
-E --> F[Cross Encoder Reranker]
-
-F --> G[Score Threshold Filter]
-
-G --> H[Context Construction]
-
-H --> I[LLM Generation - Ollama]
-
-I --> J[Streaming Response]
-
-J --> K[React Chat UI]
-
-subgraph Debug Panel
-B
-C
-F
-end
-
-
+After pushing to GitHub this will render as a diagram.
 
 Tech Stack
 Backend
@@ -178,10 +148,14 @@ TypeScript
 TailwindCSS
 
 Project Structure
+
+This must be inside a code block to stay vertical.
+
 hybrid-rag-assistant
 │
 ├── backend
 │   ├── main.py
+│   │
 │   ├── rag
 │   │   ├── pipeline.py
 │   │   ├── retriever.py
@@ -218,7 +192,7 @@ Node.js 18+
 
 Ollama installed
 
-Install a local model:
+Pull a model:
 
 ollama pull llama3
 Backend Setup
@@ -227,15 +201,15 @@ cd backend
 python -m venv venv
 source venv/bin/activate
 
-Install dependencies:
+Install dependencies
 
 pip install -r requirements.txt
 
-Run the server:
+Run the server
 
 uvicorn main:app --reload
 
-Backend runs at:
+Backend runs at
 
 http://localhost:8000
 Frontend Setup
@@ -244,7 +218,7 @@ cd frontend
 npm install
 npm run dev
 
-Frontend runs at:
+Frontend runs at
 
 http://localhost:5173
 Example Workflow
@@ -253,29 +227,29 @@ Upload a document
 
 Ask a question
 
-System expands the query
+Query expansion generates alternative queries
 
 Hybrid retrieval finds relevant chunks
 
 Cross-encoder reranks the results
 
-Context is passed to the LLM
+Context is constructed
 
-The answer is generated and streamed
+LLM generates an answer
 
-Retrieved sources and debug information are displayed
+The response streams to the UI
+
+Debug panel displays pipeline information
 
 Future Improvements
 
-
-
-Potential enhancements:
+Possible enhancements:
 
 Persistent vector database (FAISS / Chroma / Qdrant)
 
-Multi-document conversation memory
+Conversation memory
 
-Improved chunking strategies
+Better document chunking strategies
 
 Metadata filtering
 
@@ -283,6 +257,6 @@ RAG evaluation metrics
 
 Docker deployment
 
-Authentication system
+Authentication
 
 Multi-modal document support (PDFs, images)
