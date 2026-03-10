@@ -31,7 +31,6 @@ Expanded Queries:
 2. How does the program counter affect program execution?
 3. What happens when the program counter reaches the end of a program?
 
-4. 
 Cross-Encoder Reranking
 
 Retrieved chunks are reranked using a cross-encoder model to improve semantic relevance before passing them to the LLM.
@@ -91,7 +90,7 @@ This makes the system transparent and easier to debug.
 RAG Pipeline Architecture
 
 GitHub supports Mermaid diagrams if written correctly:
-```
+```mermaid
 flowchart LR
 
 A[User Query]
