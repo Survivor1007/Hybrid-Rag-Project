@@ -89,7 +89,6 @@ This makes the system transparent and easier to debug.
 
 RAG Pipeline Architecture
 
-GitHub supports Mermaid diagrams if written correctly:
 ```mermaid
 flowchart LR
 
@@ -103,7 +102,7 @@ E[Deduplication]
 F[Cross Encoder Reranker]
 G[Score Threshold Filter]
 H[Context Construction]
-I[LLM Generation (Ollama)]
+I[LLM Generation - Ollama]
 J[Streaming Response]
 K[React Chat UI]
 
