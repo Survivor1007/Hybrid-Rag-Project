@@ -34,13 +34,15 @@ Before retrieval, the system generates multiple reformulated queries using the L
 ## Example:-
 
 User Query:
+```
 Explain the program counter
-
+```
 Expanded Queries:-
+```
 What is the function of the program counter?
 How does the program counter affect instruction execution?
 What happens when the program counter updates?
-
+```
 This improves recall during retrieval.
 
 ## Cross-Encoder Reranking
