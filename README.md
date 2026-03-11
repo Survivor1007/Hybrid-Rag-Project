@@ -1,94 +1,102 @@
-Hybrid RAG Assistant
+## Hybrid RAG Assistant ##
 
-A Hybrid Retrieval-Augmented Generation (RAG) document question-answering system that allows users to upload documents and ask questions about them.
+A full-stack Retrieval-Augmented Generation (RAG) system that allows users to upload documents and ask questions about them.
+The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a Groq-hosted LLM with real-time token streaming.
+It also provides a debug panel exposing the internal RAG pipeline, enabling transparency into retrieval, reranking, and generation.
 
-The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a local LLM via Ollama, while providing full visibility into the retrieval pipeline through a RAG debug panel.
+This project demonstrates how modern AI systems combine information retrieval + LLMs + real-time frontend streaming.
 
-This project demonstrates a full-stack AI system combining modern LLM orchestration with a real-time frontend interface.
+## Demo Capabilities
+The system supports:
+Document upload(Up to 2 documents and file types are *.txt and *.pdf)
+Conversational Q&A over documents
+Hybrid search retrieval
+Query expansion
+Cross-encoder reranking
+Token-level streaming responses
+Source citations
+RAG pipeline observability
 
-Features
+# Core Features
 Hybrid Retrieval
+The retriever combines two complementary approaches:
+### BM25 (Lexical Search):-
+Finds documents with exact keyword matches.
 
-Combines:
+### Dense Vector Search:-
+Dense vector search is implemented using FAISS, a high-performance library for efficient similarity search over embeddings.
 
-BM25 lexical search
+Combining both improves retrieval when queries use different wording than the document.
 
-Dense vector similarity search
+## Query Expansion
+Before retrieval, the system generates multiple reformulated queries using the LLM.
 
-This improves retrieval accuracy when documents do not match the query wording exactly.
-
-Query Expansion
-
-Before retrieval, the system generates multiple expanded queries using the LLM.
-
-Example:
+## Example:-
 
 User Query:
-Explain program counter
+Explain the program counter
 
-Expanded Queries:
-1. What is the current value of the program counter?
-2. How does the program counter affect program execution?
-3. What happens when the program counter reaches the end of a program?
+Expanded Queries:-
+What is the function of the program counter?
+How does the program counter affect instruction execution?
+What happens when the program counter updates?
 
-Cross-Encoder Reranking
+This improves recall during retrieval.
 
-Retrieved chunks are reranked using a cross-encoder model to improve semantic relevance before passing them to the LLM.
+## Cross-Encoder Reranking
+Initial retrieval results are reranked using a cross-encoder model.
 
-Hallucination Guard
+Cross-encoders evaluate:-
+(query, document)
+pairs together, producing more accurate relevance scores compared to vector similarity.
 
-Low confidence retrieval results are filtered using a score threshold to reduce hallucinated responses.
+## Hallucination Guard
+Low-confidence results are filtered using a score threshold before being passed to the LLM.
+This reduces the likelihood of hallucinated answers.
 
-Streaming Responses
+## Streaming Responses
+The backend streams tokens from the LLM to the frontend in real time.
+This provides a ChatGPT-style experience where answers appear progressively instead of waiting for the full response.
 
-LLM responses are streamed token-by-token to the frontend for a real-time chat experience.
-
-Document Management
-
-Users can:
-
-Upload documents
-
-Remove documents
-
-Ask questions across the uploaded corpus
+Streaming architecture:
+LLM Token → FastAPI StreamingResponse → React UI
 
 Source Citations
-
-Each answer displays the retrieved document chunks and relevance scores used for generation.
+Each answer includes the document chunks used for generation, allowing users to verify the source of the information.
+Displayed information includes:-
+* document text
+* similarity scores
+* ranking order
 
 RAG Debug Panel
+A built-in debug panel exposes the internal pipeline state.
 
-The debug panel exposes internal pipeline information including:
+It shows:
 
-Retrieval Stats
-
+Retrieval Statistics
 Retrieved: 5
-After rerank: 1
-
+After Rerank: 1
 Performance Metrics
-
 Retrieval: 61 ms
 Rerank: 93 ms
 Generation: 23 ms
-Top Score: 1.799
+Top Score: 1.79
 
 Expanded Queries
-
-1. What is the current value of the program counter?
-2. How does the program counter affect program execution?
-3. What happens when the program counter reaches the end of the program?
+1. What is the function of the program counter?
+2. How does the program counter affect execution?
+3. What happens when the program counter updates?
 
 It also displays:
+* Retrieved documents
+* Reranked results
+* Final context used for generation
 
-Retrieved documents
+This makes the system transparent and easy to debug.
 
-Reranked documents
 
-This makes the system transparent and easier to debug.
 
-RAG Pipeline Architecture
-
+## RAG Pipeline Architecture
 ```mermaid
 flowchart LR
 
@@ -102,8 +110,8 @@ E[Deduplication]
 F[Cross Encoder Reranker]
 G[Score Threshold Filter]
 H[Context Construction]
-I[LLM Generation - Ollama]
-J[Streaming Response]
+I[LLM Generation - Groq]
+J[Token Streaming]
 K[React Chat UI]
 
 A --> B
@@ -120,44 +128,62 @@ H --> I
 I --> J
 J --> K
 ```
-After pushing to GitHub this will render as a diagram.
 
-Tech Stack
-Backend
+## System Architecture
 
-Python
+```
+Frontend (React + TypeScript)
+        |
+        | HTTP Streaming
+        |
+Backend (FastAPI)
+        |
+        | RAG Pipeline
+        |
+Hybrid Retriever
+(BM25 + Dense Embeddings)
+        |
+Cross Encoder Reranker
+        |
+Context Builder
+        |
+Groq LLM API
+(llama-3.1-8b-instant)
 
-FastAPI
+```
+## Tech Stack ##
 
-LangChain
+## Backend
 
-Ollama (local LLM)
+**Framework**
+- FastAPI
 
-rank-bm25
+**LLM**
+- Groq API (llama-3.1-8b-instant)
 
-Dense vector embeddings
+**Retrieval**
+- FAISS (vector similarity search)
+- rank-bm25 (lexical search)
 
-Cross-encoder reranker
+**Embeddings**
+- Sentence Transformers
 
-Frontend
+**Reranking**
+- Cross-encoder models
 
-React
+## Frontend
+* React
+* TypeScript
+* TailwindCSS
+* Vite
 
-TypeScript
-
-TailwindCSS
-
-Project Structure
-
-
+## Project Structure
 ```
 hybrid-rag-project
 │
 ├── backend
-│   │
 │   ├── app.py
 │   ├── requirements.txt
-│   |
 │   │
 │   ├── core
 │   │   ├── config.py
@@ -174,13 +200,7 @@ hybrid-rag-project
 │   └── data
 │
 ├── frontend
-│   │
-│   ├── public
-│   │
 │   ├── src
-│   │   │
-│   │   ├── assets
-│   │   │
 │   │   ├── components
 │   │   │   ├── ChatBox.tsx
 │   │   │   ├── DebugPanel.tsx
@@ -194,74 +214,32 @@ hybrid-rag-project
 │   │   │   └── types.ts
 │   │   │
 │   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   ├── App.css
-│   │   └── index.css
-│   │
-│   ├── index.html
-│   ├── package.json
-│   ├── package-lock.json
-│   │
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── vite.config.ts
-│   │
-│   ├── tsconfig.json
-│   ├── tsconfig.app.json
-│   ├── tsconfig.node.json
-│   │
-│   ├── eslint.config.js
-│   └── .gitignore
+│   │   └── main.tsx
 │
 ├── README.md
 └── .gitignore
 ```
 
-
-Backend
-
-The backend implements the Hybrid RAG pipeline using FastAPI.
-
-Key modules:
-ingestion.py → document loading and chunking
-retriever.py → hybrid retrieval (BM25 + vector search)
-reranker.py → cross-encoder reranking
-vector_store.py → dense embedding storage
-pipeline.py → orchestration of the RAG workflow
-memory.py → conversational memory support
-
-Frontend
-The frontend is built using React + TypeScript + TailwindCSS (Vite).
-
-Key components:
-ChatBox.tsx → main chat interface
-MessageBubble.tsx → renders chat messages
-SourceDocs.tsx → shows retrieved document sources
-DebugPanel.tsx → displays RAG pipeline internals
-
-Setup Instructions
+## Setup Instructions
 Prerequisites
-
-Python 3.9+
-
-Node.js 18+
-
-Ollama installed
-Pull a model:
-ollama pull mistral
+- Python 3.9+
+- Node.js 18+
 
 Backend Setup
 cd backend
 python -m venv venv
-venv/scripts/activate
+source venv/scripts/activate
 
-Install dependencies:-
+Install dependencies:
 pip install -r requirements.txt
 
-Run the server:-
+Set environment variables:
+GROQ_API_KEY=your_key_here
+
+Run server:
 uvicorn app:app --reload
 
-Backend runs at:-
+Backend runs at:
 http://localhost:8000
 
 Frontend Setup
@@ -269,26 +247,36 @@ cd frontend
 npm install
 npm run dev
 
-Frontend runs at:-
+Frontend runs at:
 http://localhost:5173
 
-Example Workflow
+## Example Workflow:-
+```
 Upload a document
+      |
 Ask a question
+      |
 Query expansion generates alternative queries
-Hybrid retrieval finds relevant chunks
-Cross-encoder reranks the results
+      |
+Hybrid retrieval finds candidate chunks
+      |
+Cross-encoder reranks results
+      |
 Context is constructed
+      |
 LLM generates an answer
-The response streams to the UI
-Debug panel displays pipeline information
+      |
+Tokens stream to the UI
+      |
+Sources and debug information are displayed
+```
 
 
-Future Improvements
+## Future Improvements
+
 Possible enhancements:
-Better document chunking strategies
-Metadata filtering 
-RAG evaluation metrics
-Docker deployment
+RAG evaluation metrics (RAGAS)
 Authentication
-Multi-modal document support (images)
+Metadata filtering
+Multi-modal document support
+Vector database integration
