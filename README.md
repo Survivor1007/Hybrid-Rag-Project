@@ -1,4 +1,12 @@
-## Hybrid RAG Assistant ##
+# Hybrid RAG Assistant
+
+![Python](https://img.shields.io/badge/Python-3.9+-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+![React](https://img.shields.io/badge/React-Frontend-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![LLM](https://img.shields.io/badge/LLM-Groq-orange)
+
+
 
 A full-stack Retrieval-Augmented Generation (RAG) system that allows users to upload documents and ask questions about them.
 The system retrieves relevant document chunks using hybrid search (BM25 + dense vectors) and generates answers using a Groq-hosted LLM with real-time token streaming.
