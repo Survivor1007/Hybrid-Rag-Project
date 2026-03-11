@@ -1,4 +1,5 @@
-from langchain_ollama import OllamaLLM
+# from langchain_ollama import OllamaLLM
+from groq import Groq
 from rank_bm25 import BM25Okapi
 
 from core.config import MODEL_NAME, TOP_K
@@ -10,10 +11,15 @@ from core.memory import ConversationMemory
 import os
 import json
 import time
+from dotenv import load_dotenv
 
 #==================
 #LOAD EVERYTHING 
 #==================
+load_dotenv()
+
+
+query_cache = {}
 
 chunks = []
 bm25 = None
@@ -87,10 +93,14 @@ retriever = HybridRetriever(
 
 reranker = CrossEncoderReranker()
 
-llm = OllamaLLM(
-      model=MODEL_NAME,
-      temperature=0
-)
+# llm = OllamaLLM(
+#       model=MODEL_NAME,
+#       temperature=0
+# )
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+MODEL_NAME="llama-3.1-8b-instant"
+
 
 memory = ConversationMemory()
 
@@ -112,7 +122,14 @@ Question: {query}
 """
       
 
-      response = llm.invoke(prompt)
+      response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role":"user", "content":prompt}],
+            temperature=0
+      )
+
+      response= response.choices[0].message.content
+
 
       lines = response.split('\n')
       expansions = []
@@ -127,6 +144,10 @@ Question: {query}
                   line = line.split(')', 1)[-1].strip()
 
             expansions.append(line)
+      
+      expansions = expansions[:n]
+
+      query_cache[query] = expansions 
 
       return expansions[:n]
 
@@ -187,7 +208,7 @@ def run_pipeline_stream(query: str):
       top_documents = filtered[:3]
 
       for i, doc in enumerate(top_documents):
-            context += f"[{i+1}] {doc[0]}\n\n"
+            context += f"[{i+1}] {doc[0].page_content}\n\n"
 
       history = memory.get_context()
       history = history[-4:]
@@ -196,8 +217,8 @@ def run_pipeline_stream(query: str):
 You are a retrieval-augmented AI assistant.
 
 IMPORTANT RULES:
-- Answer ONLY using the provided context.
-- If the answer is not present in the context, reply:
+- Answer by using the provided context.
+- Answer the question by referring to the given context, if you can't , reply:
   "I cannot find the answer in the provided documents."
 - Do NOT use outside knowledge.
 
@@ -237,15 +258,41 @@ Answer
       generation_start = time.time()
 
       #=============SEND LLM RESULT==========
-      for chunk in llm.stream(prompt):
-            token = chunk
-            answer += token
-            yield token
+      stream = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role":"user", "content": prompt}],
+            stream=True,
+            temperature=0
+      )
+
+      for chunk in stream:
+            if not chunk.choices:
+                  continue
+
+            choice = chunk.choices[0]
+            delta = choice.delta
+
+            
+            
+            if  delta and delta.content:
+                  token = delta.content
+                  answer += token
+                  yield token
+                  
+
+            # token = delta.content
+            # if token:
+            #       answer += token
+            #       yield token
+            
+            
 
       generation_time = time.time() - generation_start
 
       memory.add(query, answer)
 
+      yield("<<SOURCES>>")
+      yield json.dumps(sources)
 
       debug_data = {
             "timing":{
@@ -267,13 +314,15 @@ Answer
             ]
       }
 
-      #============SEND MARKER=================   
-      yield("\n[[SOURCES]]\n")
-      yield json.dumps(sources)
 
-
-      yield("\n[[DEBUG]]\n\n")
+      yield("<<DEBUG>>")
       yield json.dumps(debug_data)
+
+
+      
+
+      #============SEND MARKER=================   
+      
 
 
 

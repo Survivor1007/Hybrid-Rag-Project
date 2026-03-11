@@ -52,7 +52,7 @@ export default function ChatBox(){
                   let debugText = ""
                   let readingDebug = false
 
-
+                  let buffer = ""
 
                   //empty assistant message
                   setMessage(prev => [...prev, {role:"assistant",content:""}])
@@ -62,14 +62,36 @@ export default function ChatBox(){
                         const {value,done: doneReading} = await reader!.read()
                         done = doneReading
 
-                        const chunk = decoder.decode(value)
+                        const chunk = decoder.decode(value || new Uint8Array(), {stream: true})
+                        buffer += chunk
 
-                        if(chunk.includes("[[SOURCES]]")){
+
+                        if(buffer.includes("<<SOURCES>>")){
+                              const parts = buffer.split("<<SOURCES>>")
+                              streamedText += parts[0]
+                              
+                              setMessage(prev => {
+                                    const updated = [...prev]
+                                    updated[updated.length - 1] = {
+                                          role:"assistant",
+                                          content:streamedText
+                                    }
+                                    return updated
+                              })
+                              buffer = parts[1]
+
                               readingSources = true
                               readingDebug = false
                               continue
                         }
-                        if(chunk.includes("[[DEBUG]]")){
+                        if(buffer.includes("<<DEBUG>>")){
+                              const parts = buffer.split("<<DEBUG>>")
+                              
+                              sourcesText += parts[0]
+                              
+                              
+                              buffer = parts[1]
+                              
                               readingSources = false
                               readingDebug = true
                               continue
@@ -77,14 +99,17 @@ export default function ChatBox(){
                         
 
                         if(readingSources){
-                              sourcesText += chunk
+                              sourcesText += buffer
+                              buffer = ""
                         }
                         else if(readingDebug){
-                              debugText += chunk
+                              debugText += buffer 
+                              buffer = ""
                         }
                         else{
 
-                              streamedText += chunk
+                              streamedText += buffer
+                              buffer = ""
 
 
                               setMessage(prev => {
