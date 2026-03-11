@@ -277,8 +277,8 @@ Sources and debug information are displayed
 ## Future Improvements
 
 Possible enhancements:
-RAG evaluation metrics (RAGAS)
-Authentication
-Metadata filtering
-Multi-modal document support
-Vector database integration
+* RAG evaluation metrics (RAGAS)
+* Authentication
+* Metadata filtering
+* Multi-modal document support
+* Vector database integration
