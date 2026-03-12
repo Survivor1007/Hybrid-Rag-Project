@@ -260,6 +260,23 @@ npm run dev
 Frontend runs at:
 http://localhost:5173
 
+## Running Locally
+
+Due to memory limits on free cloud tiers, the backend is designed to run locally.
+
+## Demo
+
+### Main Interface
+![UI](screenshots/main_UI.png)
+
+### Document Upload
+![Chat](screenshots/chat.png)
+
+### Debug Panel
+![Debug_1](screenshots/debugPanel_1.png)
+![Debug_2](screenshots/debugPanel_2.png)
+![Debug_3](screenshots/debugPanel_3.png)
+
 ## Example Workflow:-
 ```
 Upload a document
@@ -281,17 +298,9 @@ Tokens stream to the UI
 Sources and debug information are displayed
 ```
 
-## Running Locally
 
-Due to memory limits on free cloud tiers, the backend is designed to run locally.
 
-### Backend
-cd backend
-uvicorn app:app --reload
 
-### Frontend
-cd frontend
-npm run dev
 
 
 ## Future Improvements
