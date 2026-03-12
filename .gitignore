@@ -8,7 +8,8 @@ venv/
 #Node
 node_modules/
 
-
+#data
+data/
 #Environment Files
 .env
 
