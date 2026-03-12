@@ -284,7 +284,7 @@ Sources and debug information are displayed
 ## Live Demo
 
 Frontend:
-
+https://hybrid-rag-project.vercel.app/
 
 Backend API:
 https://rag-assistant.onrender.com
