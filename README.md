@@ -281,6 +281,13 @@ Tokens stream to the UI
 Sources and debug information are displayed
 ```
 
+## Live Demo
+
+Frontend:
+
+
+Backend API:
+https://rag-assistant.onrender.com
 
 ## Future Improvements
 
