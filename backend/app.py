@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi import UploadFile, File
 from fastapi.responses import StreamingResponse
 import shutil
+import os
 
 from pydantic import BaseModel
 from services.pipeline import run_pipeline_stream
@@ -9,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
+
+os.makedirs("data", exist_ok=True)
 
 app.add_middleware(
       CORSMiddleware, 
