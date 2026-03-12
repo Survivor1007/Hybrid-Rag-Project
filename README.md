@@ -269,12 +269,14 @@ Due to memory limits on free cloud tiers, the backend is designed to run locally
 ### Main Interface
 ![UI](screenshots/main_UI.png)
 
-### Document Upload
+### Chat and Answer
 ![Chat](screenshots/chat.png)
 
 ### Debug Panel
 ![Debug_1](screenshots/debugPanel_1.png)
+
 ![Debug_2](screenshots/debugPanel_2.png)
+
 ![Debug_3](screenshots/debugPanel_3.png)
 
 ## Example Workflow:-
