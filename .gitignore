@@ -9,7 +9,7 @@ venv/
 node_modules/
 
 #data
-data/
+backend/data/
 #Environment Files
 .env
 
