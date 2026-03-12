@@ -289,6 +289,12 @@ https://hybrid-rag-project.vercel.app/
 Backend API:
 https://rag-assistant.onrender.com
 
+
+## To run it on localhost
+Swap all instances of 
+https://hybrid-rag-project.vercel.app/    with     http://127.0.0.1:8000/
+
+
 ## Future Improvements
 
 Possible enhancements:
