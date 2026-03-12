@@ -291,8 +291,7 @@ Answer
 
       memory.add(query, answer)
 
-      yield("<<SOURCES>>")
-      yield json.dumps(sources)
+      
 
       debug_data = {
             "timing":{
@@ -314,6 +313,13 @@ Answer
             ]
       }
 
+      # print(sources)
+      # print("\n\n")
+      # print(debug_data)
+
+
+      yield("<<SOURCES>>")
+      yield json.dumps(sources)
 
       yield("<<DEBUG>>")
       yield json.dumps(debug_data)
