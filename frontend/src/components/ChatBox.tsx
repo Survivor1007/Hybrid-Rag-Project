@@ -24,11 +24,19 @@ export default function ChatBox() {
     [messages, loading];
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMessage: Message = { role: "user", content: input };
-    setMessage((prev) => [...prev, userMessage]);
-    setInput("");
-    setLoading(true);
+  if (!input.trim()) return;
+
+  const userMessage: Message = { role: "user", content: input };
+
+  // Add BOTH messages at once
+  setMessage((prev) => [
+    ...prev,
+    userMessage,
+    { role: "assistant", content: "" }   // ← placeholder
+  ]);
+
+  setInput("");
+  setLoading(true);
     try {
       const response = await askQuestion(input);
       const reader = response.body?.getReader();
@@ -83,10 +91,16 @@ export default function ChatBox() {
             streamedText += buffer;
             buffer = "";
             setMessage((prev) => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: "assistant", content: streamedText };
-              return updated;
-            });
+  console.log("Updating assistant - current messages:", prev);
+  const updated = [...prev];
+  updated[updated.length - 1] = { role: "assistant", content: streamedText };
+  return updated;
+});
+            // setMessage((prev) => {
+            //   const updated = [...prev];
+            //   updated[updated.length - 1] = { role: "assistant", content: streamedText };
+            //   return updated;
+            // });
           }
         }
       }
@@ -117,7 +131,7 @@ export default function ChatBox() {
   };
 
   const fetchdocuments = async () => {
-    const res = await fetch("https://hybrid-rag-assistant-bcar.onrender.com/documents");
+    const res = await fetch("http://127.0.0.1:8000/documents");
     const data = await res.json();
     setDocuments(data.documents);
   };
@@ -134,7 +148,7 @@ export default function ChatBox() {
     const formData = new FormData();
     formData.append("file", file);
     setUploading(true);
-    await fetch("https://hybrid-rag-assistant-bcar.onrender.com/upload", {
+    await fetch("http://127.0.0.1:8000/upload", {
       method: "POST",
       body: formData,
     });
@@ -143,7 +157,7 @@ export default function ChatBox() {
   };
 
   const removeDocument = async (name: string) => {
-    await fetch(`https://hybrid-rag-assistant-bcar.onrender.com/document/${name}`, { method: "DELETE" });
+    await fetch(`http://127.0.0.1:8000/document/${name}`, { method: "DELETE" });
     fetchdocuments();
   };
 

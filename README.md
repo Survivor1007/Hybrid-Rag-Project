@@ -281,18 +281,17 @@ Tokens stream to the UI
 Sources and debug information are displayed
 ```
 
-## Live Demo
+## Running Locally
 
-Frontend:
-https://hybrid-rag-project.vercel.app/
+Due to memory limits on free cloud tiers, the backend is designed to run locally.
 
-Backend API:
-https://rag-assistant.onrender.com
+### Backend
+cd backend
+uvicorn app:app --reload
 
-
-## To run it on localhost
-Swap all instances of 
-https://hybrid-rag-project.vercel.app/    with     http://127.0.0.1:8000/
+### Frontend
+cd frontend
+npm run dev
 
 
 ## Future Improvements
